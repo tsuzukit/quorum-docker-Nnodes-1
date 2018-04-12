@@ -1,27 +1,33 @@
-# quorum-docker-Nnodes
+# What it is
 
-Run a bunch of Quorum nodes, each in a separate Docker container.
+Fork of [this repository](https://github.com/ConsenSys/quorum-docker-Nnodes).
+With this repo, it is easy to modify quorum source code in go-lang, build and test at N-node environment.
 
-This is simply a learning exercise for configuring Quorum networks. Probably best not used in a production environment.
+# Setup
 
-In progress:
+## prerequisite
 
-  * ~~Remove the need to have Geth/Bootnode/Constellation installed on the host for the set-up process: use the Docker image instead, which already contains them.~~
-  * Investigate adding Quorum network manager.
-  * Further work on Docker image size.
-  * Tidy the whole thing up.
+[Docker for mac]() must be installed.
 
-See the *README* in the *Nnodes* directory for details of the set up process.
 
-## Building
+## Download submodule
+
+Run below command in the top level directory for the first time after cloning.
+
+```
+$ git submodule update --init
+```
+
+## Build
 
 In the top level directory:
 
-    docker build -t quorum .
-    
-The first time will take a while, but after some caching it gets much quicker for any minor updates.
+```
+$ sh script/build-all.sh
+```
 
-I've got the size of the final image down to ~~391MB~~ 308MB from over 890MB. It's likely possible to improve much further on that.  Alpine Linux is a candidate minimal base image, but there are challenges with the Haskell dependencies; there's an [example here](https://github.com/jpmorganchase/constellation/blob/master/build-linux-static.dockerfile).
+This will create 2 images `quorum` and `truffle`. 
+`quorum` has executable binary built from the source at `/quorum` directory which is submodule of this repository.
 
 ## Running
 
@@ -38,15 +44,27 @@ This will set up as many Quorum nodes as IP addresses you supplied, each in a se
 
     Nnodes> docker ps
     CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                     NAMES
-    83ad1de7eea6        quorum              "/qdata/start-node.sh"   55 seconds ago      Up 53 seconds       0.0.0.0:22002->8545/tcp   nnodes_node_2_1
-    14b903ca465c        quorum              "/qdata/start-node.sh"   55 seconds ago      Up 54 seconds       0.0.0.0:22003->8545/tcp   nnodes_node_3_1
-    d60bcf0b8a4f        quorum              "/qdata/start-node.sh"   55 seconds ago      Up 54 seconds       0.0.0.0:22001->8545/tcp   nnodes_node_1_1
+    ca860bc74dd9        quorum              "/qdata/start-node.sh"   42 minutes ago      Up 42 minutes       0.0.0.0:27003->9000/tcp   nnodes_node_3_1
+    8bd3c56a5811        quorum              "/qdata/start-node.sh"   42 minutes ago      Up 42 minutes       0.0.0.0:27001->9000/tcp   nnodes_node_1_1
+    72b64cff36e0        quorum              "/qdata/start-node.sh"   42 minutes ago      Up 42 minutes       0.0.0.0:27002->9000/tcp   nnodes_node_2_1
+    7f5a4dd6bef7        truffle             "/bin/sh -c 'tail -f…"   42 minutes ago      Up 42 minutes                                 nnodes_truffle_1
+
 
 ## Stopping
 
     docker-compose down
   
 ## Playing
+
+### Interacting via Web3
+
+You can enter truffle container with below command.
+
+    docker exec -it nnodes_truffle_1 ash
+    
+Inside of container, you can do whatever with [truffle](https://github.com/trufflesuite/truffle) such as writing, compiling, and deploying solidity contracts.
+
+`script` folder has some test script you can play with.
 
 ### Accessing the Geth console
 

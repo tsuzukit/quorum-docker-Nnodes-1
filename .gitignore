@@ -1,3 +1,5 @@
+*.DS_Store
+.idea
 .#*
 Nnodes/qdata_*
 Nnodes/contract_pri.js
